@@ -10,6 +10,7 @@ export class TotpAuthenticator extends BaseAuthenticator {
     if (!value) {
       throw new RegisterException(AuthenticationType.TOTP);
     }
+    this.logger.log(`Speichere totp-URI:`, value);
     user.totp = { raw: value };
     return user;
   }

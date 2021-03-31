@@ -6,6 +6,7 @@ import { AuthenticationType } from '../../core/models/authentication-types';
 import { IUser } from '../../core/models/user';
 import { AuthenticatorValidationResult } from '../interfaces/authenticator';
 import { BaseAuthenticator } from './base-authenticator';
+import { Base64 } from 'base-coding';
 
 interface FidoAuthenticatorOptions {
   expectedOrigins: string[];
@@ -63,10 +64,22 @@ export class FidoAuthenticator extends BaseAuthenticator {
     });
     const id = additionalData.user.id;
     this.pendingChallenges[id] = additionalData.challenge as string;
+    this.logger.log('Sende Challenge:', additionalData.challenge);
     throw new RegisterException(AuthenticationType.FIDO, { fido: additionalData });
   }
 
   private onResponse(user: IUser, value?: any): IUser {
+    let challenge = '';
+    try {
+      const clientDataJSON = JSON.parse(Base64.decode(value.response.clientDataJSON));
+      challenge = clientDataJSON.challenge;
+    } catch (e) {
+      this.logger.debug('Something went wrong during get challenge:', e);
+    }
+    this.logger.log(
+      `Response erhalten.`,
+      `Prüfe Challenge: ${challenge} - Erwartet: ${this.pendingChallenges[user.userId]}`
+    );
     user.fido = FidoService.verifyAttestationObject(value, {
       challenge: this.pendingChallenges[user.userId],
       origin: this.expectedOrigins
@@ -85,6 +98,18 @@ export class FidoAuthenticator extends BaseAuthenticator {
       publicKeyPem: user.fido.publicKeyPem,
       origin: this.expectedOrigins
     };
+
+    let challenge = '';
+    try {
+      const clientDataJSON = JSON.parse(Base64.decode(credential.response.clientDataJSON));
+      challenge = clientDataJSON.challenge;
+    } catch (e) {
+      this.logger.debug('Something went wrong during get challenge:', e);
+    }
+    this.logger.log(
+      `Response erhalten.`,
+      `Prüfe Challenge: ${challenge} - Erwartet: ${this.pendingChallenges[user.userId]}`
+    );
     FidoService.verifySignature(credential, expectations);
     delete this.pendingChallenges[user.userId];
   }

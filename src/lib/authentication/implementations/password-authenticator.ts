@@ -9,6 +9,7 @@ export class PasswordAuthenticator extends BaseAuthenticator {
     if (!value) {
       throw new RegisterException(AuthenticationType.PASSWORD);
     }
+    this.logger.log(`Speichere Passwort ${value}.`);
     user.password = value;
     return user;
   }

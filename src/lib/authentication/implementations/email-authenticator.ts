@@ -27,6 +27,7 @@ export class EmailAuthenticator extends BaseAuthenticator {
     if (!value) {
       throw new RegisterException(AuthenticationType.EMAIL);
     }
+    this.logger.log(`Speichere E-Mail-Adresse ${value}.`);
     user.email = { email: value };
     return user;
   }
