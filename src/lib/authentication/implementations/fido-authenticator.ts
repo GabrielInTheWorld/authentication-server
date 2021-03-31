@@ -76,10 +76,7 @@ export class FidoAuthenticator extends BaseAuthenticator {
     } catch (e) {
       this.logger.debug('Something went wrong during get challenge:', e);
     }
-    this.logger.log(
-      `Response erhalten.`,
-      `Prüfe Challenge: ${challenge} - Erwartet: ${this.pendingChallenges[user.userId]}`
-    );
+    this.logger.log(`Response erhalten.`, `Erwartete Challenge: ${this.pendingChallenges[user.userId]}`);
     user.fido = FidoService.verifyAttestationObject(value, {
       challenge: this.pendingChallenges[user.userId],
       origin: this.expectedOrigins
@@ -106,10 +103,7 @@ export class FidoAuthenticator extends BaseAuthenticator {
     } catch (e) {
       this.logger.debug('Something went wrong during get challenge:', e);
     }
-    this.logger.log(
-      `Response erhalten.`,
-      `Prüfe Challenge: ${challenge} - Erwartet: ${this.pendingChallenges[user.userId]}`
-    );
+    this.logger.log(`Response erhalten.`, `Erwartete Challenge: ${this.pendingChallenges[user.userId]}`);
     FidoService.verifySignature(credential, expectations);
     delete this.pendingChallenges[user.userId];
   }
